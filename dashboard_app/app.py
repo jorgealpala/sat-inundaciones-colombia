@@ -76,7 +76,7 @@ LEYENDA_HTML = """
   <span style="color:#d73027;">&#9632;</span> Alta&nbsp;&nbsp;
   <span style="color:#e8c100;">&#9632;</span> Media&nbsp;&nbsp;
   <span style="color:#1a9850;">&#9632;</span> Baja<br>
-  <span style="color:#cc0000;">&#9679;</span> Inundación real (UNGRD)
+  <span style="color:#ff1493;">&#9679;</span> Inundación real (UNGRD)
 </div>
 """
 
@@ -91,7 +91,7 @@ LEYENDA_PRECIP = """
   <span style="color:#3182bd;">&#9632;</span> 10–20&nbsp;&nbsp;
   <span style="color:#08519c;">&#9632;</span> 20–40&nbsp;&nbsp;
   <span style="color:#08306b;">&#9632;</span> &gt;40<br>
-  <span style="color:#cc0000;">&#9679;</span> Inundación real (UNGRD)
+  <span style="color:#ff1493;">&#9679;</span> Inundación real (UNGRD)
 </div>
 """
 
@@ -320,8 +320,9 @@ with col_mapa:
     reales = vista_geo[vista_geo["hubo_inundacion"] == 1]
     for _, r in reales.iterrows():
         c = r["geometry"].centroid
-        folium.CircleMarker([c.y, c.x], radius=4, color="#cc0000",
-                            fill=True, fill_opacity=0.9,
+        folium.CircleMarker([c.y, c.x], radius=4, color="#ffffff",
+                            weight=1.2, fill=True, fill_color="#ff1493",
+                            fill_opacity=1.0,
                             tooltip=f"💧 Inundación real: {r['MpNombre']}").add_to(m)
 
     st_folium(m, width=None, height=500, returned_objects=[])

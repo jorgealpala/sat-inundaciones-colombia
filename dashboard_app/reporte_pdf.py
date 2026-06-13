@@ -62,7 +62,7 @@ def _mapa_estatico(vista_geo, col_nivel, titulo):
             sub.plot(ax=ax, color=color, edgecolor="#999999", linewidth=0.15)
     reales = vista_geo[vista_geo["hubo_inundacion"] == 1]
     if len(reales):
-        reales.geometry.centroid.plot(ax=ax, color="#cc0000", markersize=18,
+        reales.geometry.centroid.plot(ax=ax, color="#ff1493", markersize=18,
                                       marker="o", zorder=5)
     ax.set_title(titulo, fontsize=13, fontweight="bold")
     ax.axis("off")
@@ -70,7 +70,7 @@ def _mapa_estatico(vista_geo, col_nivel, titulo):
                Patch(facecolor=COLORES["media"], label="Media"),
                Patch(facecolor=COLORES["baja"], label="Baja"),
                plt.Line2D([0], [0], marker="o", color="w",
-                          markerfacecolor="#cc0000", markersize=8,
+                          markerfacecolor="#ff1493", markersize=8,
                           label="Inundación real")]
     ax.legend(handles=leyenda, loc="lower left", fontsize=9, framealpha=0.9)
     return fig
