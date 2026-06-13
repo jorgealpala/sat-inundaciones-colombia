@@ -35,14 +35,15 @@ from pathlib import Path
 # CONFIGURACIÓN
 # ---------------------------------------------------------------------------
 GEE_PROJECT = os.environ.get("GEE_PROJECT", "geovolcanes-scr-piloto")
-RUTA_KEY    = Path("gee-key.json")
+RUTA_KEY    = Path(os.environ.get("GEE_KEY_PATH", "gee-key.json"))
 ASSET_MUNICIPIOS = "projects/ee-jorgealpala/assets/municipios_simplificado"
 CAMPO_CODIGO = "MpCodigo"
 
-DIR_OUT      = Path(r"..\outputs")
-DIR_MODELOS  = DIR_OUT / "modelos_imerg"          # modelos IMERG
-DIR_DASH     = DIR_OUT / "dashboard"
-RUTA_GEOFEAT = DIR_OUT / "geografia_municipios.csv"
+# Rutas configurables por entorno (funcionan en local y en GitHub Actions)
+DIR_OUT      = Path(os.environ.get("SAT_DIR_OUT", r"..\outputs"))
+DIR_MODELOS  = Path(os.environ.get("SAT_DIR_MODELOS", str(DIR_OUT / "modelos_imerg")))
+DIR_DASH     = Path(os.environ.get("SAT_DIR_DASH", str(DIR_OUT / "dashboard")))
+RUTA_GEOFEAT = Path(os.environ.get("SAT_RUTA_GEOFEAT", str(DIR_OUT / "geografia_municipios.csv")))
 
 PCT_ALTA, PCT_MEDIA = 0.95, 0.80
 PISO_PERCENTIL_GLOBAL = 0.70
@@ -201,6 +202,7 @@ def predecir_fecha(fecha_objetivo, geo_feat, modelos):
     salida = feats_df[["cod_dane"]].copy()
     salida["fecha"] = pd.Timestamp(fecha_objetivo)
     salida["hubo_inundacion"] = 0
+    salida["precip_chirps"] = feats_df["precip_chirps"].round(2).values
     for h in HORIZONTES:
         pk = modelos[h]
         proba = pk["modelo"].predict_proba(feats_df[pk["features"]])[:, 1]
@@ -368,6 +370,7 @@ def main(fecha_objetivo=None):
     salida = feats_df[["cod_dane"]].copy()
     salida["fecha"] = pd.Timestamp(fecha_objetivo)
     salida["hubo_inundacion"] = 0
+    salida["precip_chirps"] = feats_df["precip_chirps"].round(2).values
 
     for h in HORIZONTES:
         pk = joblib.load(DIR_MODELOS / f"modelo_imerg_{h}.pkl")

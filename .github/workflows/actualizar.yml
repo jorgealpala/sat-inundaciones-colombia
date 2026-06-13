@@ -34,13 +34,13 @@ jobs:
         env:
           GEE_PROJECT: ${{ secrets.GEE_PROJECT }}
           GEE_KEY_JSON: ${{ secrets.GEE_KEY_JSON }}
+          GEE_KEY_PATH: gee-key.json
+          SAT_DIR_MODELOS: modelos_imerg
+          SAT_RUTA_GEOFEAT: geografia_municipios.csv
+          SAT_DIR_DASH: ../dashboard_app/data
         run: |
           cd scripts
           python 23_prediccion_vivo_imerg.py actualizar
-
-      - name: Copiar parquet actualizado al dashboard
-        run: |
-          cp outputs/dashboard/predicciones_vivo_imerg.parquet dashboard_app/data/predicciones_vivo_imerg.parquet
 
       - name: Eliminar credencial (seguridad)
         if: always()
