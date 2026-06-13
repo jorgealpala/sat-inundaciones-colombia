@@ -1,0 +1,55 @@
+name: Actualizar predicciones SAT
+
+# Ejecuta 2 veces al día (UTC). Colombia = UTC-5.
+#   10:00 UTC = 05:00 Colombia
+#   22:00 UTC = 17:00 Colombia
+on:
+  schedule:
+    - cron: '0 10 * * *'
+    - cron: '0 22 * * *'
+  workflow_dispatch:        # permite ejecutarlo manualmente desde GitHub
+
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write       # para hacer commit del parquet actualizado
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Instalar dependencias
+        run: |
+          pip install earthengine-api pandas numpy joblib pyarrow scikit-learn xgboost
+
+      - name: Escribir credencial GEE desde secret
+        run: echo '${{ secrets.GEE_KEY_JSON }}' > scripts/gee-key.json
+
+      - name: Ejecutar actualización de predicciones
+        env:
+          GEE_PROJECT: ${{ secrets.GEE_PROJECT }}
+          GEE_KEY_JSON: ${{ secrets.GEE_KEY_JSON }}
+        run: |
+          cd scripts
+          python 23_prediccion_vivo_imerg.py actualizar
+
+      - name: Copiar parquet actualizado al dashboard
+        run: |
+          cp outputs/dashboard/predicciones_vivo_imerg.parquet dashboard_app/data/predicciones_vivo_imerg.parquet
+
+      - name: Eliminar credencial (seguridad)
+        if: always()
+        run: rm -f scripts/gee-key.json
+
+      - name: Commit y push del parquet actualizado
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add dashboard_app/data/predicciones_vivo_imerg.parquet
+          git diff --staged --quiet || git commit -m "Actualización automática de predicciones SAT [skip ci]"
+          git push

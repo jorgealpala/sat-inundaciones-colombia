@@ -1,0 +1,36 @@
+# ============================================================
+# .gitignore — Proyecto SAT Inundaciones
+# ============================================================
+
+# CREDENCIALES — NUNCA subir a GitHub
+gee-key.json
+*-key.json
+*.pem
+.streamlit/secrets.toml
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Datos crudos pesados (no necesarios en el repo del dashboard)
+data/imerg/
+data/chirps/
+data/ideam/
+*.xls
+*.xlsx
+
+# Parquets grandes de procesamiento (el dashboard solo usa los livianos)
+tabla_maestra*.parquet
+*_consolidado.csv
+
+# Sistema
+.DS_Store
+Thumbs.db
+.ipynb_checkpoints/
+
+# Logs
+*.log
