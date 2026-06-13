@@ -34,7 +34,7 @@ from reporte_pdf import generar_reporte
 st.set_page_config(page_title="SAT Inundaciones Colombia",
                    page_icon="🌧️", layout="wide")
 
-DIR_DATA = Path("data")
+DIR_DATA = Path(__file__).parent / "data"
 RUTA_GEO  = DIR_DATA / "municipios_dashboard.geojson"
 RUTA_REC  = DIR_DATA / "recurrencia_municipios.parquet"
 RUTA_MENS = DIR_DATA / "recurrencia_mensual.parquet"
