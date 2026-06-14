@@ -97,7 +97,8 @@ LEYENDA_PRECIP = """
 
 
 @st.cache_data
-def cargar_predicciones(ruta_str):
+def cargar_predicciones(ruta_str, _mtime):
+    # _mtime (fecha de modificación) fuerza recarga cuando el archivo cambia
     df = pd.read_parquet(ruta_str)
     df["fecha"] = pd.to_datetime(df["fecha"])
     df["cod_dane"] = df["cod_dane"].astype(str).str.zfill(5)
@@ -168,7 +169,8 @@ if not ruta_pred.exists():
              "o elige otra vista.")
     st.stop()
 
-df = cargar_predicciones(str(ruta_pred))
+_mtime = ruta_pred.stat().st_mtime if ruta_pred.exists() else 0
+df = cargar_predicciones(str(ruta_pred), _mtime)
 geo = cargar_geojson()
 rec = cargar_recurrencia()
 mens = cargar_mensual()
