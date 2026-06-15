@@ -76,12 +76,30 @@ def inicializar_gee():
     log("GEE inicializado correctamente.")
 
 
-def ultima_fecha_imerg():
-    """Fecha más reciente disponible en IMERG V07."""
+def ultima_fecha_imerg(min_imagenes=40):
+    """
+    Última fecha con un día COMPLETO en IMERG V07.
+
+    IMERG genera 48 imágenes de 30 min por día. El día en curso (y a veces el
+    anterior) está incompleto. Para un acumulado diario fiable, se retrocede
+    hasta encontrar un día con al menos `min_imagenes` imágenes (~día completo).
+    """
     col = ee.ImageCollection(DATASET_IMERG)
     ultima = ee.Date(col.aggregate_max("system:time_start"))
     fecha_str = ultima.format("YYYY-MM-dd").getInfo()
-    return datetime.strptime(fecha_str, "%Y-%m-%d").date()
+    cand = datetime.strptime(fecha_str, "%Y-%m-%d").date()
+
+    # Retroceder hasta hallar un día con suficientes imágenes (máx 5 intentos)
+    for _ in range(5):
+        ini = ee.Date(cand.strftime("%Y-%m-%d"))
+        fin = ini.advance(1, "day")
+        n = col.filterDate(ini, fin).size().getInfo()
+        if n >= min_imagenes:
+            return cand
+        log(f"  {cand} incompleto ({n}/48 imágenes), retrocediendo un día...")
+        cand = cand - pd.Timedelta(days=1)
+        cand = cand.date() if hasattr(cand, "date") else cand
+    return cand
 
 
 # ---------------------------------------------------------------------------
