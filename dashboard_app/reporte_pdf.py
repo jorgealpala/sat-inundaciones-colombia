@@ -172,6 +172,118 @@ def _grafica_estacionalidad(mens, geo, depto=None):
     return fig
 
 
+def _terminos_de_uso(styles):
+    """Construye los elementos (flowables) de la página de Términos de Uso."""
+    h_style = ParagraphStyle("tu_titulo", parent=styles["Heading1"],
+                             fontSize=15, textColor=colors.HexColor("#1a3a5c"),
+                             spaceAfter=4)
+    sub_style = ParagraphStyle("tu_sub", parent=styles["Heading2"],
+                               fontSize=11, textColor=colors.HexColor("#2c5f8a"),
+                               spaceBefore=8, spaceAfter=3)
+    txt = ParagraphStyle("tu_txt", parent=styles["Normal"], fontSize=8.5,
+                         leading=12, alignment=4, spaceAfter=3)
+    bullet = ParagraphStyle("tu_bul", parent=txt, leftIndent=12,
+                            bulletIndent=2, spaceAfter=2)
+    cita = ParagraphStyle("tu_cita", parent=txt, leftIndent=14, rightIndent=10,
+                          textColor=colors.HexColor("#333333"), fontName="Helvetica-Oblique")
+
+    el = []
+    el.append(PageBreak())
+    el.append(Paragraph("Términos de Uso", h_style))
+    el.append(Paragraph(
+        "Sistema de Alerta Temprana de Inundaciones para Colombia basado en "
+        "Inteligencia Artificial — <b>Versión 1.0 — 16 de junio de 2026</b>", txt))
+    el.append(Spacer(1, 0.2 * cm))
+
+    el.append(Paragraph("1. Naturaleza del proyecto", sub_style))
+    el.append(Paragraph(
+        "Este sistema es un <b>proyecto académico de tesis</b>, desarrollado como trabajo "
+        "de grado para optar al título de Especialista en Inteligencia Artificial de la "
+        "<b>Corporación Universitaria Minuto de Dios (UNIMINUTO)</b>. Tiene fines "
+        "investigativos, educativos y demostrativos. <b>No constituye un servicio oficial "
+        "de alerta ni un producto operativo de ninguna entidad pública.</b>", txt))
+
+    el.append(Paragraph("2. Alcance", sub_style))
+    el.append(Paragraph(
+        "El sistema estima, mediante un modelo de inteligencia artificial entrenado con "
+        "datos abiertos (precipitación satelital CHIRPS e IMERG, estaciones del IDEAM y "
+        "registros históricos de la UNGRD), la probabilidad de ocurrencia de inundaciones "
+        "a escala municipal para horizontes de 24, 48 y 72 horas. Está diseñado para servir "
+        "como herramienta de <b>apoyo</b> a la consulta y priorización del riesgo; ofrecer "
+        "una capa de información anticipada de <b>acceso libre</b>, especialmente útil para "
+        "municipios sin sistemas de alerta propios; y funcionar a escala <b>regional y "
+        "semanal</b>, que es la escala en la que el modelo alcanza su mayor confiabilidad.", txt))
+
+    el.append(Paragraph("3. Limitaciones", sub_style))
+    el.append(Paragraph("El usuario reconoce y acepta que:", txt))
+    for b in [
+        "Las alertas son <b>estimaciones probabilísticas, no certezas</b>. Una alerta no "
+        "garantiza que ocurra una inundación, ni su ausencia garantiza que no ocurra.",
+        "La confiabilidad es de carácter <b>regional y semanal</b>, y no debe interpretarse "
+        "como una predicción exacta de municipio y día.",
+        "El sistema <b>no pronostica</b> la magnitud, extensión, profundidad ni duración de "
+        "una inundación, ni emite alertas de crecientes súbitas con anticipación de minutos.",
+        "El modelo puede <b>subestimar eventos convectivos muy localizados</b> y hereda los "
+        "sesgos de sus fuentes de datos (subreporte histórico, cobertura parcial de estaciones).",
+        "En modo de operación en tiempo real, el sistema utiliza únicamente datos satelitales "
+        "y geomorfológicos; las estaciones del IDEAM no se incorporan en vivo en esta versión.",
+        "El funcionamiento depende de la disponibilidad de servicios de terceros (Google Earth "
+        "Engine, Streamlit Cloud, GitHub) y de la conexión a internet del usuario.",
+    ]:
+        el.append(Paragraph("• " + b, bullet))
+
+    el.append(Paragraph("4. Responsabilidad", sub_style))
+    for b in [
+        "<b>No sustituye los avisos oficiales del IDEAM ni de la UNGRD.</b> Ante cualquier "
+        "situación de riesgo, las fuentes oficiales y las autoridades competentes de gestión "
+        "del riesgo prevalecen siempre.",
+        "El sistema es una herramienta de apoyo a la decisión y <b>no reemplaza el juicio "
+        "profesional, el monitoreo local ni la autoridad</b> de los consejos municipales y "
+        "departamentales de gestión del riesgo de desastres.",
+        "El autor <b>no se hace responsable</b> por decisiones, acciones u omisiones tomadas "
+        "con base en la información del sistema, ni por daños directos o indirectos derivados "
+        "de su uso o de su indisponibilidad. La información se ofrece \"tal cual\", sin "
+        "garantías de ningún tipo.",
+        "El usuario emplea el sistema bajo su propia responsabilidad.",
+    ]:
+        el.append(Paragraph("• " + b, bullet))
+
+    el.append(Paragraph("5. Uso de datos y privacidad", sub_style))
+    el.append(Paragraph(
+        "El sistema se construyó exclusivamente con <b>datos públicos y abiertos</b>, sin "
+        "información personal ni datos sensibles de individuos. La variable de inundación "
+        "opera a escala municipal, no individual. El código fuente es abierto y reproducible, "
+        "lo que permite auditar el funcionamiento del sistema.", txt))
+
+    el.append(Paragraph("6. Citación", sub_style))
+    el.append(Paragraph(
+        "Este es un trabajo académico. Si utiliza, referencia o se apoya en este sistema o "
+        "sus resultados, debe citarlo de la siguiente manera (APA 7):", txt))
+    el.append(Paragraph(
+        "Alpala Aguilar, J. A. (2026). <i>Sistema de alerta temprana de inundaciones para "
+        "Colombia basado en inteligencia artificial</i> [Monografía de especialización, "
+        "Corporación Universitaria Minuto de Dios]. UNIMINUTO.", cita))
+
+    el.append(Paragraph("7. Recursos del proyecto", sub_style))
+    el.append(Paragraph(
+        "Repositorio de código (GitHub): "
+        "https://github.com/jorgealpala/sat-inundaciones-colombia.git", txt))
+    el.append(Paragraph(
+        "Conjunto de datos (Zenodo): https://zenodo.org/records/20713063", txt))
+
+    el.append(Paragraph("8. Versión", sub_style))
+    el.append(Paragraph(
+        "<b>Versión 1.0</b> — 16 de junio de 2026. Este es un sistema en evolución; las "
+        "metodologías, datos y resultados pueden actualizarse en versiones posteriores.", txt))
+
+    el.append(Spacer(1, 0.3 * cm))
+    el.append(Paragraph(
+        "<b>Autor:</b> Jorge Armando Alpala Aguilar — Ingeniero Civil, Especialista en "
+        "Sistemas de Información Geográfica, Magíster en Geomática. "
+        "<b>Contacto:</b> jorge.alpala.1987@gmail.com", txt))
+    return el
+
+
 def generar_reporte(vista_geo, dia_geo, col_nivel, col_prob,
                     fecha, horizonte, ambito_txt, es_nacional,
                     fuente="IMERG", modo="Tiempo real",
@@ -267,10 +379,14 @@ def generar_reporte(vista_geo, dia_geo, col_nivel, col_prob,
     pie_style = ParagraphStyle("pie", parent=styles["Normal"], fontSize=8,
                                textColor=colors.grey)
     story.append(Paragraph(
-        f"Sistema demostrativo académico (tesis de especialización en IA). "
+        f"Proyecto académico (tesis de Especialización en IA, UNIMINUTO) · v1.0 — 2026-06-16. "
         f"Modelo XGBoost basado en {fuente} + IDEAM + geografía, datos UNGRD "
-        "2011–2025. Las alertas son estimaciones probabilísticas y no "
-        "sustituyen los avisos oficiales del IDEAM y la UNGRD.", pie_style))
+        "2011–2025. Las alertas son estimaciones probabilísticas y <b>no "
+        "sustituyen los avisos oficiales del IDEAM y la UNGRD</b>. Véanse los Términos de "
+        "Uso en la página siguiente.", pie_style))
+
+    # --- Página de Términos de Uso ---
+    story.extend(_terminos_de_uso(styles))
 
     doc.build(story)
     buffer.seek(0)

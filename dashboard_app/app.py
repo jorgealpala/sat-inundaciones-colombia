@@ -134,6 +134,11 @@ def cargar_mensual():
 # CABECERA
 # ---------------------------------------------------------------------------
 st.title("🌧️ Sistema de Alerta Temprana de Inundaciones — Colombia")
+st.caption(
+    "⚠️ **Proyecto académico** (tesis de Especialización en IA, UNIMINUTO). "
+    "No sustituye los avisos oficiales del IDEAM y la UNGRD. "
+    "Consulte los **Términos de Uso** al final de la página.  ·  **v1.0 — 2026-06-16**"
+)
 
 # --- Selector de FUENTE (pestañas) y MODO ---
 col_fuente, col_modo = st.columns([1, 1])
@@ -542,8 +547,98 @@ if generar_pdf:
             st.error(f"No se pudo generar el PDF: {e}")
 
 # ---------------------------------------------------------------------------
-# PIE
+# PIE — TÉRMINOS DE USO
 # ---------------------------------------------------------------------------
 st.markdown("---")
-st.caption("⚠️ Sistema demostrativo académico (tesis especialización en IA). "
-           "No sustituye los avisos oficiales del IDEAM y la UNGRD.")
+
+with st.expander("📋 Términos de Uso  ·  v1.0 — 2026-06-16", expanded=False):
+    st.markdown(
+        """
+**Sistema de Alerta Temprana de Inundaciones para Colombia basado en Inteligencia Artificial**
+**Versión 1.0 — 16 de junio de 2026**
+
+---
+
+#### 1. Naturaleza del proyecto
+Este sistema es un **proyecto académico de tesis**, desarrollado como trabajo de grado
+para optar al título de Especialista en Inteligencia Artificial de la **Corporación
+Universitaria Minuto de Dios (UNIMINUTO)**. Tiene fines investigativos, educativos y
+demostrativos. **No constituye un servicio oficial de alerta ni un producto operativo
+de ninguna entidad pública.**
+
+#### 2. Alcance
+El sistema estima, mediante un modelo de inteligencia artificial entrenado con datos
+abiertos (precipitación satelital CHIRPS e IMERG, estaciones del IDEAM y registros
+históricos de la UNGRD), la probabilidad de ocurrencia de inundaciones a escala
+municipal para horizontes de 24, 48 y 72 horas. Está diseñado para:
+
+- Servir como herramienta de **apoyo** a la consulta y priorización del riesgo de inundación.
+- Ofrecer una capa de información anticipada de **acceso libre**, especialmente útil
+  para municipios que carecen de sistemas de alerta propios.
+- Funcionar a escala **regional y semanal**, que es la escala en la que el modelo
+  alcanza su mayor confiabilidad.
+
+#### 3. Limitaciones
+El usuario reconoce y acepta que:
+
+- Las alertas son **estimaciones probabilísticas, no certezas**. Una alerta no garantiza
+  que ocurra una inundación, ni su ausencia garantiza que no ocurra.
+- La confiabilidad del sistema es de carácter **regional y semanal**, y no debe
+  interpretarse como una predicción exacta de municipio y día.
+- El sistema **no pronostica** la magnitud, extensión, profundidad ni duración de una
+  inundación, ni emite alertas de crecientes súbitas con anticipación de minutos.
+- El modelo puede **subestimar eventos convectivos muy localizados** y hereda los sesgos
+  de sus fuentes de datos (subreporte histórico, cobertura parcial de estaciones).
+- En modo de operación en tiempo real, el sistema utiliza únicamente datos satelitales y
+  geomorfológicos; las estaciones del IDEAM no se incorporan en vivo en esta versión.
+- El funcionamiento depende de la disponibilidad de servicios de terceros (Google Earth
+  Engine, Streamlit Cloud, GitHub) y de la conexión a internet del usuario.
+
+#### 4. Responsabilidad
+- **No sustituye los avisos oficiales del IDEAM ni de la UNGRD.** Ante cualquier situación
+  de riesgo, las fuentes oficiales y las autoridades competentes de gestión del riesgo
+  prevalecen siempre.
+- El sistema es una herramienta de apoyo a la decisión y **no reemplaza el juicio
+  profesional, el monitoreo local ni la autoridad** de los consejos municipales y
+  departamentales de gestión del riesgo de desastres.
+- El autor **no se hace responsable** por decisiones, acciones u omisiones tomadas con
+  base en la información del sistema, ni por daños directos o indirectos derivados de su
+  uso o de su indisponibilidad. La información se ofrece "tal cual", sin garantías de
+  ningún tipo.
+- El usuario emplea el sistema bajo su propia responsabilidad.
+
+#### 5. Uso de datos y privacidad
+El sistema se construyó exclusivamente con **datos públicos y abiertos**, sin información
+personal ni datos sensibles de individuos. La variable de inundación opera a escala
+municipal, no individual. El código fuente es abierto y reproducible, lo que permite
+auditar el funcionamiento del sistema.
+
+#### 6. Citación
+Este es un trabajo académico. Si utiliza, referencia o se apoya en este sistema o sus
+resultados, debe citarlo de la siguiente manera (APA 7):
+
+> Alpala Aguilar, J. A. (2026). *Sistema de alerta temprana de inundaciones para Colombia
+> basado en inteligencia artificial* [Monografía de especialización, Corporación
+> Universitaria Minuto de Dios]. UNIMINUTO.
+
+#### 7. Recursos del proyecto
+- **Repositorio de código (GitHub):** https://github.com/jorgealpala/sat-inundaciones-colombia.git
+- **Conjunto de datos (Zenodo):** https://zenodo.org/records/20713063
+
+#### 8. Versión
+**Versión 1.0** — 16 de junio de 2026. Este es un sistema en evolución; las metodologías,
+datos y resultados pueden actualizarse en versiones posteriores.
+
+---
+
+**Autor:** Jorge Armando Alpala Aguilar — Ingeniero Civil, Especialista en Sistemas de
+Información Geográfica, Magíster en Geomática.
+**Contacto:** jorge.alpala.1987@gmail.com
+        """
+    )
+
+st.caption(
+    "Sistema de Alerta Temprana de Inundaciones — Colombia  ·  v1.0 (2026-06-16)  ·  "
+    "Proyecto académico — UNIMINUTO  ·  No sustituye los avisos oficiales del IDEAM y la UNGRD.  ·  "
+    "© 2026 Jorge A. Alpala Aguilar"
+)
