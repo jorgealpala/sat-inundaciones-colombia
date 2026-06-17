@@ -10,6 +10,8 @@ pandas>=2.0
 numpy>=1.24
 geopandas>=1.0
 pyarrow>=15.0
+fsspec>=2024.0
+requests>=2.31
 
 # Modelo
 scikit-learn>=1.3
