@@ -21,6 +21,7 @@
 ============================================================================
 """
 
+import time as _time
 import streamlit as st
 import pandas as pd
 import geopandas as gpd
@@ -45,6 +46,16 @@ RUTAS_PRED = {
     ("IMERG", "Tiempo real"):     DIR_DATA / "predicciones_vivo_imerg.parquet",
     ("CHIRPS", "Demo histórica"): DIR_DATA / "predicciones_demo.parquet",
     ("CHIRPS", "Tiempo real"):    DIR_DATA / "predicciones_vivo.parquet",
+}
+
+# URL raw de GitHub para los datos de TIEMPO REAL (los que actualiza el bot).
+# Leer desde aquí garantiza siempre la última versión, sin depender de que
+# Streamlit Cloud reinicie el contenedor tras el push del workflow.
+GITHUB_RAW = ("https://raw.githubusercontent.com/jorgealpala/"
+              "sat-inundaciones-colombia/main/dashboard_app/data/")
+URLS_PRED_VIVO = {
+    "IMERG":  GITHUB_RAW + "predicciones_vivo_imerg.parquet",
+    "CHIRPS": GITHUB_RAW + "predicciones_vivo.parquet",
 }
 
 COLORES = {"alta": "#d73027", "media": "#fee08b", "baja": "#1a9850"}
@@ -96,13 +107,41 @@ LEYENDA_PRECIP = """
 """
 
 
-@st.cache_data
-def cargar_predicciones(ruta_str, _mtime):
-    # _mtime (fecha de modificación) fuerza recarga cuando el archivo cambia
+@st.cache_data(ttl=900)  # expira cada 15 min como red de seguridad
+def cargar_predicciones(ruta_str, _firma):
+    # _firma (mtime + tamaño del archivo) fuerza recarga cuando el archivo cambia.
+    # El ttl garantiza que, aun si la firma no cambiara, el caché se renueve.
     df = pd.read_parquet(ruta_str)
     df["fecha"] = pd.to_datetime(df["fecha"])
     df["cod_dane"] = df["cod_dane"].astype(str).str.zfill(5)
     return df
+
+
+@st.cache_data(ttl=600)  # 10 min: lee la última versión publicada en GitHub
+def cargar_predicciones_remoto(url, _ventana):
+    # _ventana (bloque de 10 min) actúa como cache-buster temporal: cuando cambia,
+    # se vuelve a descargar el parquet más reciente que el bot publicó en GitHub.
+    # Se descarga con requests (universal) y se lee desde memoria, evitando
+    # depender de fsspec en el entorno de despliegue.
+    import io
+    import requests
+    resp = requests.get(url, timeout=30)
+    resp.raise_for_status()
+    df = pd.read_parquet(io.BytesIO(resp.content))
+    df["fecha"] = pd.to_datetime(df["fecha"])
+    df["cod_dane"] = df["cod_dane"].astype(str).str.zfill(5)
+    return df
+
+
+def _firma_archivo(ruta):
+    """Huella del archivo: combina fecha de modificación y tamaño en bytes.
+    Si GitHub Actions reescribe el .parquet, al menos uno de los dos cambia,
+    invalidando el caché aunque el sistema de archivos redondee el mtime."""
+    try:
+        s = ruta.stat()
+        return f"{int(s.st_mtime)}_{s.st_size}"
+    except Exception:
+        return "0_0"
 
 @st.cache_data
 def cargar_geojson():
@@ -174,8 +213,22 @@ if not ruta_pred.exists():
              "o elige otra vista.")
     st.stop()
 
-_mtime = ruta_pred.stat().st_mtime if ruta_pred.exists() else 0
-df = cargar_predicciones(str(ruta_pred), _mtime)
+# Carga de predicciones según el modo:
+#  - Tiempo real: lee directamente desde GitHub (siempre la última versión que
+#    publicó el bot), con respaldo al archivo local si falla la red.
+#  - Demo histórica: lee el archivo local (no cambia).
+if modo == "Tiempo real" and fuente in URLS_PRED_VIVO:
+    _ventana = int(_time.time() // 600)  # cambia cada 10 minutos
+    try:
+        df = cargar_predicciones_remoto(URLS_PRED_VIVO[fuente], _ventana)
+    except Exception:
+        # Respaldo: archivo local del contenedor
+        _firma = _firma_archivo(ruta_pred)
+        df = cargar_predicciones(str(ruta_pred), _firma)
+else:
+    _firma = _firma_archivo(ruta_pred)
+    df = cargar_predicciones(str(ruta_pred), _firma)
+
 geo = cargar_geojson()
 rec = cargar_recurrencia()
 mens = cargar_mensual()
@@ -187,6 +240,18 @@ es_tiempo_real = (modo == "Tiempo real")
 # CONTROLES
 # ---------------------------------------------------------------------------
 st.sidebar.header("Controles")
+
+# Botón para forzar recarga de datos (limpia el caché sin reiniciar la app)
+_ultima_fecha = max(df["fecha"].dt.date.unique())
+col_b1, col_b2 = st.sidebar.columns([3, 2])
+with col_b1:
+    st.caption(f"🛰️ Datos hasta: **{_ultima_fecha.strftime('%d/%m/%Y')}**")
+with col_b2:
+    if st.button("🔄 Actualizar", help="Recarga los datos más recientes "
+                 "publicados por el sistema automático.", use_container_width=True):
+        st.cache_data.clear()
+        st.rerun()
+
 fechas = sorted(df["fecha"].dt.date.unique())
 if len(fechas) == 1:
     # Una sola fecha: mostrarla como info fija
