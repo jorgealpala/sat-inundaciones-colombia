@@ -343,7 +343,19 @@ col_mapa, col_panel = st.columns([2, 1])
 with col_mapa:
     titulo_capa = "alertas" if capa_mapa == "Alertas" else "precipitación"
     st.subheader(f"Mapa de {titulo_capa} — {horizonte} · {ambito_txt}")
-    m = folium.Map(location=centro, zoom_start=zoom, tiles="CartoDB positron")
+    # Mapa base: Esri World Light Gray (gris claro, sin API key).
+    # Se evita "CartoDB positron" porque CARTO ahora exige API key y
+    # devuelve tiles con la marca de agua "API KEY REQUIRED".
+    m = folium.Map(
+        location=centro, zoom_start=zoom, tiles=None, max_zoom=16,
+    )
+    folium.TileLayer(
+        tiles="https://server.arcgisonline.com/ArcGIS/rest/services/"
+              "Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+        attr="Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ",
+        name="Esri World Light Gray",
+        max_zoom=16, control=False,
+    ).add_to(m)
 
     tiene_precip = "precip_chirps" in vista_geo.columns
 
